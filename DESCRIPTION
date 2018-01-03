@@ -1,0 +1,21 @@
+Package: transport
+Type: Package
+Title: Transported causal inference
+Version: 0.1.0
+Authors@R: c(
+    person("Kara", "Rudolph", email = "kara.rudolph@gmail.com",
+      role = c("aut", "cph")),
+    person("Chris", "Kennedy", email = "chrisken@gmail.com",
+      role = c("aut", "cre")))
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 3.2.0)
+Imports:
+    stats
+Suggests:
+    testthat
+RoxygenNote: 6.0.1

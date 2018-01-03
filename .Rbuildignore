@@ -1,0 +1,11 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+
+# Automated testing files.
+^\.travis\.yml$
+^appveyor\.yml$
+
+^scripts$
+
+^README\.Rmd$
+^images/README-.*\.png$
