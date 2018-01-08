@@ -38,3 +38,7 @@ devtools::install_github("ck37/transport")
 To be added.
 
 ## References
+
+Rudolph, K. E., & Laan, M. J. (2017). [Robust estimation of encouragement design intervention effects transported across sites.](http://onlinelibrary.wiley.com/doi/10.1111/rssb.12213/full) Journal of the Royal Statistical Society: Series B (Statistical Methodology), 79(5), 1509-1525.
+
+Rudolph, K. E., Schmidt, N. M., Glymour, M. M., Crowder, R., Galin, J., Ahern, J., & Osypuk, T. L. (2017). [Composition or context: using transportability to understand drivers of site differences in a large-scale housing experiment.](http://europepmc.org/abstract/med/29076878) Epidemiology (Cambridge, Mass.).
