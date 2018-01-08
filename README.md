@@ -14,7 +14,7 @@ Status](https://img.shields.io/codecov/c/github/ck37/transport/master.svg)](http
 ## Description
 
 transport is an R package for transport estimators: applying the
-estimated treatment effect from one population site to another.
+estimated treatment effect from one population or site to another.
 
 The package implements TMLE-based estimators for three parameters:
 
