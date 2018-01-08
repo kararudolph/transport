@@ -8,11 +8,19 @@ Status](https://ci.appveyor.com/api/projects/status/github/ck37/transport?branch
 [![Coverage
 Status](https://img.shields.io/codecov/c/github/ck37/transport/master.svg)](https://codecov.io/github/ck37/transport?branch=master)
 
-> Transportation estimators
+> Robust targeted maximum likelihood estimators (TMLEs) for transporting
+> intervention effects from one population to another
 
 ## Description
 
-TBD
+transport is an R package for transport estimators: applying the
+estimated treatment effect from one population site to another.
+
+The package implements TMLE-based estimators for three parameters:
+
+  - intent-to-treat average treatment effect (ITTATE)
+  - average causal effect of the exposure on outcome (EACE)
+  - complier average causal effect (CACE)
 
 ## Installation
 
@@ -23,13 +31,67 @@ Install the development version from github:
 devtools::install_github("ck37/transport")
 ```
 
-## Examples
+## Example
 
-To be added.
+This example from Rudolph & van der Laan (2017) does not work yet, but
+will soon.
+
+``` r
+n <- 5000
+site <- rbinom(n, 1, .5)
+
+race <- rbinom(n,1, .4 + (.2 * site))
+crime <- rnorm(n, .1 * site , 1)
+discrimination <- rnorm(n, 1 + (.2 * site ), 1)
+
+# Instrument
+voucher <- rbinom(n, 1, .5)
+
+# Exposure
+move0 <- rbinom(n, 1, plogis(-log(1.6) -
+                               log(1.1) * crime - log(1.3) * discrimination))
+move1 <- rbinom(n, 1, plogis(-log(1.6) + log(4) - log(1.1) * crime -
+                               log(1.3) * discrimination))
+move <- ifelse(voucher == 1, move1, move0)
+
+# Outcomes
+inschoola0 <- rbinom(n, 1, plogis(log(1.6) +
+                           (log(1.9) * move0) - log(1.3) * discrimination -
+                            log(1.2) * race + log(1.2) * race * move0))
+inschoola1 <- rbinom(n, 1, plogis(log(1.6) +
+                           (log(1.9) * move1) - log(1.3) * discrimination -
+                            log(1.2) * race + log(1.2) * race * move1))
+inschoola <- ifelse(voucher == 1, inschoola1, inschoola0)
+
+dat <- data.frame(w2 = crime , w3 = discrimination, w1 = race , site = site ,
+                  a = voucher, z = move, y = inschoola)
+wmat <- dat[, c("w1", "w2", "w3")]
+
+
+amodel <- "a ~ 1"
+sitemodel <- "site ~ w1 + w2 + w3 "
+zmodel <- "z ~ a + w2 + w3"
+outmodel <- "y ~ z + w1 + w3 + z:w1"
+outmodelnoz <- "y ~ a + w1 + w3 + a:w1"
+q2model <- "w1 + w2 + w3 "
+
+ittate_est <- ittatetmle(a = dat$a, z = dat$z, y = dat$y, site = dat$site,
+                         w = wmat, aamodel = amodel, asitemodel = sitemodel,
+                         azmodel = zmodel, aoutmodel = outmodel,
+                         aq2model = q2model)
+
+cate_est <- catetmle(ca = dat$a, cz = dat$z, cy = dat$y, csite = dat$site,
+                     cw = wmat, csitemodel = sitemodel, czmodel = zmodel,
+                     coutmodel = outmodel, cq2model = q2model)
+
+eate_est <- eatetmle(a = dat$a, z = dat$z, y = dat$y, site = dat$site, w = wmat,
+                     nsitemodel = sitemodel, nzmodel = zmodel,
+                     noutmodel = outmodel)
+```
 
 ## References
 
-Rudolph, K. E., & Laan, M. J. (2017). [Robust estimation of
+Rudolph, K. E., & van der Laan, M. J. (2017). [Robust estimation of
 encouragement design intervention effects transported across
 sites.](http://onlinelibrary.wiley.com/doi/10.1111/rssb.12213/full)
 Journal of the Royal Statistical Society: Series B (Statistical
