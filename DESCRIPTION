@@ -1,21 +1,27 @@
 Package: transport
 Type: Package
-Title: Transported causal inference
-Version: 0.1.0
+Title: Transported Causal Inference With Targeted Learning
+Version: 0.1.0-9000
 Authors@R: c(
     person("Kara", "Rudolph", email = "kara.rudolph@gmail.com",
       role = c("aut", "cph")),
     person("Chris", "Kennedy", email = "chrisken@gmail.com",
       role = c("aut", "cre")))
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Transportation estimation using TMLE. Includes estimators for
+    three parameters: intent-to-treat average treatment effect, average causal
+    effect of the exposure on the outcome, and the complier average causal
+    effect.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends:
     R (>= 3.2.0)
 Imports:
-    stats
+    stats,
+    SuperLearner
 Suggests:
-    testthat
+    future,
+    glmnet,
+    testthat,
+    xgboost
 RoxygenNote: 6.0.1
