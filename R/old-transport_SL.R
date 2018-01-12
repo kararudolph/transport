@@ -7,8 +7,9 @@
 #-----------------------------------------------------------------------------------------
 #' fit ittate_TMLE with SuperLearner
 #' @importFrom stats coef glm plogis predict var
+#' @importFrom SuperLearner SuperLearner All
 #' @export
-ittatetmle_multi_z_sl <-
+old_ittatetmle_multi_z_sl <-
   function(a, z, y, site, w, aamodel,
            asitemodel,s_awz_model, s_aw_model, aoutmodel, aq2model) {
     datw  <- w
@@ -75,7 +76,7 @@ ittatetmle_multi_z_sl <-
                   data=data.frame(cbind(datw, a=a, zmat, site=site, y=y)),
                   subset=site==1)
 
-    #initial prediciton
+    #initial prediction
     q      <- cbind(predict(ymodel, type="link", newdata=data.frame(cbind(datw, a=a,zmat))),
                     predict(ymodel, type="link", newdata=data.frame(cbind(datw, a=0,zmat))),
                     predict(ymodel, type="link", newdata=data.frame(cbind(datw, a=1,zmat)))
@@ -127,7 +128,7 @@ ittatetmle_multi_z_sl <-
 ## y variable needs to be named y and have values 0/1
 ## w variables in a dataframe named w and with names w1:wx
 
-ittatetmle_multi_z <- function(a, z, y, site, w, aamodel, asitemodel,s_awz_model, s_aw_model, aoutmodel, aq2model){
+old_ittatetmle_multi_z <- function(a, z, y, site, w, aamodel, asitemodel,s_awz_model, s_aw_model, aoutmodel, aq2model){
     datw  <- w
     n.dat <- nrow(datw)
 
