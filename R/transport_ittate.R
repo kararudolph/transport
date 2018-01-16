@@ -1,39 +1,55 @@
-# site variable needs to be named 'site' and needs to have value 0 for the site where the outcome data is not used and value 1 for the site where the outcome data is used
-# z variable needs to be named z and have values 0/1
-# y variable needs to be named y and have values 0/1
-# w variables in a dataframe named w and with names w1:wx
-
-#-----------------------------------------------------------------------------------------
-#' fit ittate_TMLE with multi-dimensional Z
+#' Transported intent-to-treat average treatment effect
 #'
-# NOTE: Z can be either binary or continuous (or a mix of both types) this code
-#'             calculates the ratio dga1s0/dga1s1 with a trick in Zheng(2012)
+#' More details to be added.
+#'
+#' @param a needs to be named a and have values 0/1
+#' @param z matrix, each column be an individual z covariate and can be either
+#'   binary or continuous (or a mix of both types) this code calculates the
+#'   ratio dga1s0/dga1s1 with a trick in Zheng(2012)
+#' @param y needs to be named y and have values 0/1
+#' @param site The site, value 0 for the site where the outcome data is not used
+#'   and value 1 for the site where the outcome data is used.
+#' @param w in a dataframe named w and with names w1:wx
+#' @param weights vector with length = nrow(data). p(Delta_2 | A, W, S)
+#' @param aamodel The aamodel
+#' @param asitemodel The asitemodel
+#' @param s_awz_model formula for fitting S ~ A + W + Z
+#' @param s_aw_model formula for fitting S ~ A + W
+#' @param aoutmodel The aoutmodel
+#' @param aq2model The aq 2 model
 #
-#' @param a  needs to be named a and have values 0/1
-#' @param z            matrix, each column be an individual z covariate
-#' @param y            { parameter_description }
-#' @param site         The site
-#' @param w            { parameter_description }
-#' @param weights      vector with length == nrow(data). p(Delta_2 | A,W,S)
-#' @param aamodel      The aamodel
-#' @param asitemodel   The asitemodel
-#' @param s_awz_model  formula for fitting S ~ A + W + Z
-#' @param s_aw_model   formula for fitting S ~ A + W
-#' @param aoutmodel    The aoutmodel
-#' @param aq2model     The aq 2 model
-#
-#' @return     { description_of_the_return_value }
+#' @return A list with three elements:
+#'
+#' \begin{enumerate}
+#' \item est: the parameter estimate.
+#' \item var: the variance estimate of the EIC.
+#' \item eic: the efficient influnce curve unit-level values.
+#' \end{enumerate}
+#'
+#' @examples TBD.
+#'
+#' @references TBD.
 #'
 #' @importFrom stats coef glm plogis predict var
 #' @export
-ittatetmle_multi_z <-
-  function(a, z, y, site, w, weights = NULL, aamodel, asitemodel,s_awz_model, s_aw_model, aoutmodel, aq2model){
+transport_ittate =
+  function(a, z, y, site, w, weights = NULL,
+           superlearner_lib = NULL,
+           aamodel,
+           lasitemodel,
+           s_awz_model,
+           s_aw_model,
+           aoutmodel,
+           aq2model) {
     datw  <- w
     n.dat <- nrow(datw)
 
-    #calculate components of clever covariate
-    cpa <- predict(glm(formula=aamodel, family="binomial", data=data.frame(cbind(datw, a=a))), newdata=datw, type="response")
-    cps <- predict(glm(formula=asitemodel, data=data.frame(cbind(site=site, datw)), family="binomial"), type="response")
+    # calculate components of clever covariate
+    cpa_glm = glm(formula = aamodel, family = "binomial", data = data.frame(cbind(datw, a = a)))
+    cpa <- predict(cpa_glm, newdata = datw, type="response")
+
+    cps_glm = glm(formula = asitemodel, data = data.frame(cbind(site = site, datw)), family = "binomial")
+    cps <- predict(cps_glm, type="response")
 
     #
     # ratio component 1
@@ -88,20 +104,24 @@ ittatetmle_multi_z <-
     h0w    <- ((1-a)*I(site==1))/g0w
     h1w    <- (a*I(site==1))/g1w
 
-    ymodel <- glm(formula=aoutmodel,
-                  family="binomial",
-                  data=data.frame(cbind(datw, a=a, z, site=site, y=y)),
-                  subset=site==1)
+    ymodel <- glm(formula = aoutmodel,
+                  family = "binomial",
+                  data = data.frame(cbind(datw, a = a, z, site = site, y = y)),
+                  subset = site == 1)
 
     #
     #initial prediciton
     # ---------------------------------------------------------------------------------------
-    q      <- cbind(predict(ymodel, type="link", newdata=data.frame(cbind(datw, a=a,z))),
-                    predict(ymodel, type="link", newdata=data.frame(cbind(datw, a=0,z))),
-                    predict(ymodel, type="link", newdata=data.frame(cbind(datw, a=1,z)))
+    q      <- cbind(predict(ymodel, type = "link",
+                            newdata = data.frame(cbind(datw, a = a, z))),
+                    predict(ymodel, type = "link",
+                            newdata = data.frame(cbind(datw, a = 0, z))),
+                    predict(ymodel, type = "link",
+                            newdata = data.frame(cbind(datw, a = 1, z)))
                     )
 
-    epsilon <- coef(glm(y ~ -1 + offset(q[,1]) + h0w + h1w , family="binomial", subset=site==1 ))
+    epsilon <- coef(glm(y ~ -1 + offset(q[, 1]) + h0w + h1w , family = "binomial",
+                        subset = site == 1 ))
 
     #
     #update initial prediction
@@ -142,7 +162,7 @@ ittatetmle_multi_z <-
     ps0     <- mean(I(site==0))
 
     # inverse weight by the censoring probability p(Delta_2 | A,W,S)
-    if(!is.null(weights)){
+    if (!is.null(weights)) {
         # if(nrow(wmat) != length(weights)) warning("length of weights not match nrow(wmat)!")
         ps0 <- ps0 * weights
     }
@@ -153,7 +173,10 @@ ittatetmle_multi_z <-
         (((a*cz[,3]/ps0) - ((1-a)*cz[,2]/ps0))* (plogis(q[,1]) - plogis(q2pred[,1]))) +
         ((I(site==0)/ps0)*((plogis(q2pred[,3]) - plogis(q2pred[,2])) - tmleest))
 
-    return(list("est"=tmleest, "var"=var(eic)/n.dat, "eic"=eic))
+    results = list("est" = tmleest,
+                   "var" = var(eic) / n.dat,
+                   "eic" = eic)
+    return(results)
 
 }
 
