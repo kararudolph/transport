@@ -8,4 +8,8 @@
 ^scripts$
 
 ^README\.Rmd$
+^images$
 ^images/README-.*\.png$
+
+# Old files
+^archive$
