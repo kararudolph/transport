@@ -1,6 +1,8 @@
-#' Transported intent-to-treat average treatment effect
+#' Transported intent-to-treat average treatment effect (ITT-ATE)
 #'
 #' More details to be added.
+#'
+#' This estimator is also used in \code{\link{transport_cace}}.
 #'
 #' @param a needs to be named a and have values 0/1
 #' @param z matrix, each column be an individual z covariate and can be either
@@ -11,6 +13,7 @@
 #'   and value 1 for the site where the outcome data is used.
 #' @param w in a dataframe named w and with names w1:wx
 #' @param weights vector with length = nrow(data). p(Delta_2 | A, W, S)
+#' @param superlearner_lib (Optional) vector that defines the SuperLearner library.
 #' @param aamodel The aamodel
 #' @param asitemodel The asitemodel
 #' @param s_awz_model formula for fitting S ~ A + W + Z
@@ -20,15 +23,19 @@
 #
 #' @return A list with three elements:
 #'
-#' \begin{enumerate}
+#' \enumerate{
 #' \item est: the parameter estimate.
 #' \item var: the variance estimate of the EIC.
 #' \item eic: the efficient influnce curve unit-level values.
-#' \end{enumerate}
+#' }
 #'
-#' @examples TBD.
+#' @examples
 #'
-#' @references TBD.
+#' # TBD.
+#'
+#' @references
+#'
+#' Zheng (2012)
 #'
 #' @importFrom stats coef glm plogis predict var
 #' @export
@@ -36,7 +43,7 @@ transport_ittate =
   function(a, z, y, site, w, weights = NULL,
            superlearner_lib = NULL,
            aamodel,
-           lasitemodel,
+           asitemodel,
            s_awz_model,
            s_aw_model,
            aoutmodel,
@@ -46,10 +53,10 @@ transport_ittate =
 
     # calculate components of clever covariate
     cpa_glm = glm(formula = aamodel, family = "binomial", data = data.frame(cbind(datw, a = a)))
-    cpa <- predict(cpa_glm, newdata = datw, type="response")
+    cpa <- predict(cpa_glm, newdata = datw, type = "response")
 
     cps_glm = glm(formula = asitemodel, data = data.frame(cbind(site = site, datw)), family = "binomial")
-    cps <- predict(cps_glm, type="response")
+    cps <- predict(cps_glm, type = "response")
 
     #
     # ratio component 1
