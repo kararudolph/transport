@@ -39,17 +39,17 @@ outmodelnoz <- "y ~ a + w1 + w3 + a:w1"
 q2model <- "w1 + w2 + w3 "
 
 # TODO: provide s_awz_model formula?
-ittate_est <- ittatetmle(a = dat$a, z = dat$z, y = dat$y, site = dat$site,
+ittate_est <- transport_ittate(a = dat$a, z = dat$z, y = dat$y, site = dat$site,
                          w = wmat, aamodel = amodel, asitemodel = sitemodel,
                          #azmodel = zmodel,
                          s_awz_model = zmodel,
                          aoutmodel = outmodel,
                          aq2model = q2model)
 
-cate_est <- catetmle(ca = dat$a, cz = dat$z, cy = dat$y, csite = dat$site,
+cate_est <- transport_cace(ca = dat$a, cz = dat$z, cy = dat$y, csite = dat$site,
                      cw = wmat, csitemodel = sitemodel, czmodel = zmodel,
                      coutmodel = outmodel, cq2model = q2model)
 
-eate_est <- eatetmle(a = dat$a, z = dat$z, y = dat$y, site = dat$site, w = wmat,
+eate_est <- transport_eace(a = dat$a, z = dat$z, y = dat$y, site = dat$site, w = wmat,
                      nsitemodel = sitemodel, nzmodel = zmodel,
                      noutmodel = outmodel)
