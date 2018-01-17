@@ -82,16 +82,16 @@ outmodel <- "y ~ z + w1 + w3 + z:w1"
 outmodelnoz <- "y ~ a + w1 + w3 + a:w1"
 q2model <- "w1 + w2 + w3 "
 
-ittate_est <- ittatetmle(a = dat$a, z = dat$z, y = dat$y, site = dat$site,
+ittate_est <- transport_ittate(a = dat$a, z = dat$z, y = dat$y, site = dat$site,
                          w = wmat, aamodel = amodel, asitemodel = sitemodel,
                          azmodel = zmodel, aoutmodel = outmodel,
                          aq2model = q2model)
 
-cate_est <- catetmle(ca = dat$a, cz = dat$z, cy = dat$y, csite = dat$site,
+cace_est <- transport_cace(ca = dat$a, cz = dat$z, cy = dat$y, csite = dat$site,
                      cw = wmat, csitemodel = sitemodel, czmodel = zmodel,
                      coutmodel = outmodel, cq2model = q2model)
 
-eate_est <- eatetmle(a = dat$a, z = dat$z, y = dat$y, site = dat$site, w = wmat,
+eace_est <- transport_eace(a = dat$a, z = dat$z, y = dat$y, site = dat$site, w = wmat,
                      nsitemodel = sitemodel, nzmodel = zmodel,
                      noutmodel = outmodel)
 ```
